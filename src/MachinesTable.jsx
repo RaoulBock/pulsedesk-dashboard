@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function MachinesTable({ machines }) {
+export default function MachinesTable({ machines, onRemoteControl }) {
   return (
     <table
       border="1"
@@ -15,6 +15,7 @@ export default function MachinesTable({ machines }) {
           <th>Platform</th>
           <th>CPU Count</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -34,6 +35,19 @@ export default function MachinesTable({ machines }) {
                 style={{ color: device.status === "online" ? "green" : "red" }}
               >
                 {device.status === "online" ? "Online" : "Offline"}
+              </td>
+              <td>
+                <button
+                  onClick={() => onRemoteControl(device)}
+                  disabled={device.status !== "online"} // Disable if offline
+                  style={{
+                    cursor:
+                      device.status === "online" ? "pointer" : "not-allowed",
+                    padding: "6px 10px",
+                  }}
+                >
+                  Remote Control
+                </button>
               </td>
             </tr>
           ))

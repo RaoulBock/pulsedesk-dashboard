@@ -10,6 +10,19 @@ export default function App() {
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState("");
 
+  // New handler for remote control button click
+  const handleRemoteControl = (device) => {
+    if (!device.online) return alert("Device is offline!");
+
+    // Example: emit event to backend or open remote control UI
+    console.log("Starting remote control for:", device.hostname);
+
+    // For example, emit socket event
+    socket.emit("remote-control", { hostname: device.hostname });
+
+    alert(`Attempting to remotely control ${device.hostname}`);
+  };
+
   const fetchMachines = () => {
     fetch("http://localhost:4000/api/machines")
       .then((res) => {
@@ -66,7 +79,10 @@ export default function App() {
         </button>
       </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <MachinesTable machines={machines} />
+      <MachinesTable
+        machines={machines}
+        onRemoteControl={handleRemoteControl}
+      />
     </div>
   );
 }
