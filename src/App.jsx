@@ -1,3 +1,4 @@
+// App.jsx
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import MachinesTable from "./MachinesTable";
@@ -9,21 +10,11 @@ export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState("");
+  const [selectedMachine, setSelectedMachine] = useState(null);
 
-  // New handler for remote control button click
-  const handleRemoteControl = (device) => {
-    if (!device.online) return alert("Device is offline!");
+  useEffect(() => {
+    if (!loggedIn) return;
 
-    // Example: emit event to backend or open remote control UI
-    console.log("Starting remote control for:", device.hostname);
-
-    // For example, emit socket event
-    socket.emit("remote-control", { hostname: device.hostname });
-
-    alert(`Attempting to remotely control ${device.hostname}`);
-  };
-
-  const fetchMachines = () => {
     fetch("http://localhost:4000/api/machines")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch devices");
@@ -31,22 +22,13 @@ export default function App() {
       })
       .then(setMachines)
       .catch((err) => setError(err.message));
-  };
 
-  useEffect(() => {
-    if (!loggedIn) return;
-
-    // Fetch initial machines list on login
-    fetchMachines();
-
-    // Listen for real-time updates
-    socket.on("update", (updatedDevices) => {
+    socket.on("devices:update", (updatedDevices) => {
       setMachines(updatedDevices);
     });
 
-    // Clean up socket listener on unmount or logout
     return () => {
-      socket.off("update");
+      socket.off("devices:update");
     };
   }, [loggedIn]);
 
@@ -55,34 +37,68 @@ export default function App() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 900,
-        margin: "40px auto",
-        fontFamily: "Arial, sans-serif",
-        padding: 20,
-      }}
-    >
-      <h1>PulseDesk Admin Dashboard</h1>
-      <div style={{ marginBottom: 20 }}>
-        <button
-          onClick={() => setLoggedIn(false)}
-          style={{ padding: "8px 12px", cursor: "pointer", marginRight: 10 }}
-        >
+    <div style={styles.container}>
+      {/* Header */}
+      <header style={styles.header}>
+        <h1 style={styles.logo}>PulseDesk Dashboard</h1>
+        <button style={styles.logoutBtn} onClick={() => setLoggedIn(false)}>
           Logout
         </button>
-        <button
-          onClick={fetchMachines}
-          style={{ padding: "8px 12px", cursor: "pointer" }}
-        >
-          Refresh
-        </button>
-      </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <MachinesTable
-        machines={machines}
-        onRemoteControl={handleRemoteControl}
-      />
+      </header>
+
+      {/* Content */}
+      <main style={styles.main}>
+        {error && <div style={styles.errorBox}>{error}</div>}
+        <MachinesTable
+          machines={machines}
+          onRemoteControl={setSelectedMachine}
+        />
+      </main>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    fontFamily: "Arial, sans-serif",
+    backgroundColor: "#f9fbfd",
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+  },
+  header: {
+    background: "linear-gradient(135deg, #4facfe, #00f2fe)",
+    padding: "15px 30px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    color: "white",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  },
+  logo: {
+    margin: 0,
+    fontSize: "20px",
+    fontWeight: "600",
+  },
+  logoutBtn: {
+    background: "rgba(255,255,255,0.2)",
+    border: "none",
+    color: "white",
+    padding: "8px 14px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    transition: "background 0.3s",
+  },
+  main: {
+    flex: 1,
+    padding: "20px 40px",
+  },
+  errorBox: {
+    background: "#ffe5e5",
+    border: "1px solid #ffb3b3",
+    color: "#c0392b",
+    padding: "10px 15px",
+    borderRadius: "8px",
+    marginBottom: "15px",
+  },
+};
