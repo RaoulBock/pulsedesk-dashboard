@@ -2,6 +2,7 @@
 import React from "react";
 
 export default function MachinesTable({ machines, onRemoteControl }) {
+  console.log(machines);
   return (
     <div
       style={{
@@ -24,8 +25,8 @@ export default function MachinesTable({ machines, onRemoteControl }) {
           <tr style={{ backgroundColor: "#f8f9fa", textAlign: "left" }}>
             <th style={thStyle}>Hostname</th>
             <th style={thStyle}>Status</th>
-            <th style={thStyle}>IP</th>
-            <th style={thStyle}>Action</th>
+
+            <th style={thStyle}>Last Seen</th>
           </tr>
         </thead>
         <tbody>
@@ -52,15 +53,8 @@ export default function MachinesTable({ machines, onRemoteControl }) {
               >
                 {machine.status}
               </td>
-              <td style={tdStyle}>{machine.ip}</td>
-              <td style={tdStyle}>
-                <button
-                  style={buttonStyle}
-                  onClick={() => onRemoteControl(machine)}
-                >
-                  Remote Control
-                </button>
-              </td>
+
+              <td style={tdStyle}>{machine.lastSeen}</td>
             </tr>
           ))}
         </tbody>
