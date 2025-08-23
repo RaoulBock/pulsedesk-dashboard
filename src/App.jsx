@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import MachinesTable from "./MachinesTable";
 import Login from "./Login";
 
-const socket = io("http://localhost:4000");
+const socket = io("https://pulsedesk-backend.onrender.com");
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -15,7 +15,7 @@ export default function App() {
   useEffect(() => {
     if (!loggedIn) return;
 
-    fetch("http://localhost:4000/api/machines")
+    fetch("https://pulsedesk-backend.onrender.com/api/machines")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch devices");
         return res.json();
@@ -38,60 +38,172 @@ export default function App() {
 
   return (
     <div style={styles.container}>
-      {/* Header */}
-      <header style={styles.header}>
-        <h1 style={styles.logo}>PulseDesk Dashboard</h1>
-        <button style={styles.logoutBtn} onClick={() => setLoggedIn(false)}>
-          Logout
-        </button>
-      </header>
+      {/* Sidebar */}
+      <aside style={styles.sidebar}>
+        <h2 style={styles.sidebarLogo}>⚡ PulseDesk</h2>
+        <nav style={styles.nav}>
+          <a href="#" style={styles.navItem}>
+            🏠 Dashboard
+          </a>
+          {/* <a href="#" style={styles.navItem}>
+            📊 Reports
+          </a>
+          <a href="#" style={styles.navItem}>
+            📈 Analytics
+          </a>
+          <a href="#" style={styles.navItem}>
+            ⚙️ Settings
+          </a> */}
+        </nav>
+      </aside>
 
-      {/* Content */}
-      <main style={styles.main}>
-        {error && <div style={styles.errorBox}>{error}</div>}
-        <MachinesTable
-          machines={machines}
-          onRemoteControl={setSelectedMachine}
-        />
-      </main>
+      {/* Main Content */}
+      <div style={styles.content}>
+        {/* Header */}
+        <header style={styles.header}>
+          <input
+            type="text"
+            placeholder="🔍 Search anything..."
+            style={styles.search}
+          />
+          <button style={styles.logoutBtn} onClick={() => setLoggedIn(false)}>
+            🚪 Logout
+          </button>
+        </header>
+
+        {/* Stat Cards */}
+        <section style={styles.cards}>
+          <div
+            style={{
+              ...styles.card,
+              background: "linear-gradient(135deg,#667eea,#764ba2)",
+            }}
+          >
+            <h4>💻 Total Devices</h4>
+            <p>{machines.length}</p>
+          </div>
+          <div
+            style={{
+              ...styles.card,
+              background: "linear-gradient(135deg,#43e97b,#38f9d7)",
+            }}
+          >
+            <h4>🟢 Online</h4>
+            <p>{machines.filter((m) => m.status === "online").length}</p>
+          </div>
+          <div
+            style={{
+              ...styles.card,
+              background: "linear-gradient(135deg,#ff758c,#ff7eb3)",
+            }}
+          >
+            <h4>🔴 Offline</h4>
+            <p>{machines.filter((m) => m.status !== "online").length}</p>
+          </div>
+        </section>
+
+        {/* Content */}
+        <main style={styles.main}>
+          {error && <div style={styles.errorBox}>{error}</div>}
+          <MachinesTable
+            machines={machines}
+            onRemoteControl={setSelectedMachine}
+          />
+        </main>
+      </div>
     </div>
   );
 }
 
 const styles = {
   container: {
-    fontFamily: "Arial, sans-serif",
-    backgroundColor: "#f9fbfd",
+    display: "flex",
     minHeight: "100vh",
+    fontFamily: "'Inter', sans-serif",
+    backgroundColor: "#f3f4f6",
+  },
+  sidebar: {
+    width: "230px",
+    background: "linear-gradient(180deg,#1e293b,#0f172a)",
+    color: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    padding: "20px",
+    borderRight: "1px solid rgba(255,255,255,0.1)",
+  },
+  sidebarLogo: {
+    margin: 0,
+    marginBottom: "30px",
+    fontSize: "22px",
+    fontWeight: "700",
+  },
+  nav: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  navItem: {
+    color: "#cbd5e1",
+    textDecoration: "none",
+    fontSize: "15px",
+    padding: "10px 12px",
+    borderRadius: "8px",
+    transition: "all 0.3s ease",
+  },
+  content: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
   },
   header: {
-    background: "linear-gradient(135deg, #4facfe, #00f2fe)",
-    padding: "15px 30px",
     display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    color: "white",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    alignItems: "center",
+    padding: "15px 30px",
+    background: "#fff",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
   },
-  logo: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "600",
+  search: {
+    flex: 1,
+    maxWidth: "300px",
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "1px solid #ddd",
+    outline: "none",
+    fontSize: "14px",
+    marginRight: "15px",
+    transition: "all 0.3s ease",
   },
   logoutBtn: {
-    background: "rgba(255,255,255,0.2)",
+    background: "linear-gradient(135deg,#ff0844,#ffb199)",
     border: "none",
     color: "white",
-    padding: "8px 14px",
-    borderRadius: "6px",
+    padding: "10px 18px",
+    borderRadius: "12px",
     cursor: "pointer",
-    transition: "background 0.3s",
+    fontSize: "14px",
+    fontWeight: "600",
+    boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
+  },
+  cards: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: "20px",
+    padding: "25px 30px",
+  },
+  card: {
+    color: "white",
+    borderRadius: "16px",
+    padding: "25px",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
+    textAlign: "center",
+    transition: "transform 0.2s ease",
+    fontSize: "18px",
+    fontWeight: "600",
   },
   main: {
     flex: 1,
-    padding: "20px 40px",
+    padding: "20px 30px",
   },
   errorBox: {
     background: "#ffe5e5",

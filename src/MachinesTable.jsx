@@ -1,16 +1,8 @@
 // MachinesTable.jsx
-import React, { useState } from "react";
+import React from "react";
 
 export default function MachinesTable({ machines, onRemoteControl }) {
-  const [search, setSearch] = useState("");
-
-  // filter machines by hostname or status
-  const filteredMachines = machines.filter(
-    (machine) =>
-      machine.hostname.toLowerCase().includes(search.toLowerCase()) ||
-      machine.status.toLowerCase().includes(search.toLowerCase())
-  );
-
+  console.log(machines);
   return (
     <div
       style={{
@@ -22,23 +14,6 @@ export default function MachinesTable({ machines, onRemoteControl }) {
       }}
     >
       <h3 style={{ marginBottom: "15px", color: "#333" }}>Machines</h3>
-
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search by hostname or status..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          marginBottom: "15px",
-          padding: "8px 12px",
-       
-          borderRadius: "6px",
-          border: "1px solid #ccc",
-          fontSize: "14px",
-        }}
-      />
-
       <table
         style={{
           width: "100%",
@@ -50,44 +25,38 @@ export default function MachinesTable({ machines, onRemoteControl }) {
           <tr style={{ backgroundColor: "#f8f9fa", textAlign: "left" }}>
             <th style={thStyle}>Hostname</th>
             <th style={thStyle}>Status</th>
+
             <th style={thStyle}>Last Seen</th>
           </tr>
         </thead>
         <tbody>
-          {filteredMachines.length > 0 ? (
-            filteredMachines.map((machine) => (
-              <tr
-                key={machine.id}
+          {machines.map((machine) => (
+            <tr
+              key={machine.id}
+              style={{
+                borderBottom: "1px solid #eee",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#f9f9f9")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              <td style={tdStyle}>{machine.hostname}</td>
+              <td
                 style={{
-                  borderBottom: "1px solid #eee",
-                  transition: "background 0.2s",
+                  ...tdStyle,
+                  color: machine.status === "online" ? "green" : "red",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#f9f9f9")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
               >
-                <td style={tdStyle}>{machine.hostname}</td>
-                <td
-                  style={{
-                    ...tdStyle,
-                    color: machine.status === "online" ? "green" : "red",
-                  }}
-                >
-                  {machine.status}
-                </td>
-                <td style={tdStyle}>{machine.lastSeen}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3" style={{ ...tdStyle, textAlign: "center" }}>
-                No machines found
+                {machine.status}
               </td>
+
+              <td style={tdStyle}>{machine.lastSeen}</td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
@@ -104,4 +73,19 @@ const thStyle = {
 const tdStyle = {
   padding: "12px",
   color: "#444",
+};
+
+const buttonStyle = {
+  padding: "6px 12px",
+  backgroundColor: "#007bff",
+  color: "#fff",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer",
+  fontSize: "13px",
+  transition: "background 0.2s",
+};
+
+buttonStyle[":hover"] = {
+  backgroundColor: "#0056b3",
 };
