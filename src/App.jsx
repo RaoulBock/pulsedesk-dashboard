@@ -105,10 +105,7 @@ export default function App() {
         {/* Content */}
         <main style={styles.main}>
           {error && <div style={styles.errorBox}>{error}</div>}
-          <MachinesTable
-            machines={machines}
-            onRemoteControl={setSelectedMachine}
-          />
+          <MachinesTable machines={machines} />
         </main>
       </div>
     </div>
